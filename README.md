@@ -10,7 +10,6 @@ Um aplicativo para listar receitas utilizando a API TheMealDB.
 
 ### 🛠️ Tecnologias Utilizadas
 
-
 - React Native (com Expo)
 
 - Axios (para chamadas de API)

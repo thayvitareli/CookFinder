@@ -13,6 +13,8 @@ import {
   Linking,
   Touchable,
   TouchableOpacity,
+  SafeAreaView,
+  StatusBar,
 } from 'react-native';
 
 export default function Meal() {
@@ -42,38 +44,45 @@ export default function Meal() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      <StatusBar
+        translucent
+        barStyle={'light-content'}
+        backgroundColor={'transparent'}
+      />
       <Link href={'/'} style={styles.backButton}>
         <Text>Voltar</Text>
       </Link>
 
-      {isLoading && <ActivityIndicator />}
-
-      <ScrollView
-        contentContainerStyle={styles.scroll}
-        showsVerticalScrollIndicator={false}
-      >
-        <Text style={styles.title}>{recipient.strMeal}</Text>
-        <Image
-          source={{ uri: recipient.strMealThumb }}
-          style={{ width: '100%', height: 200, borderRadius: 10 }}
-        />
-        <Text style={{ marginTop: 20, fontSize: 18, fontWeight: 'bold' }}>
-          Instruções:
-        </Text>
-        <Text style={{ fontSize: 16, marginTop: 10 }}>
-          {recipient.strInstructions}
-        </Text>
-        {recipient.strYoutube && (
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => Linking.openURL(recipient.strYoutube)}
-          >
-            <Text style={styles.buttonTitle}>Assistir no YouTube</Text>
-          </TouchableOpacity>
-        )}
-      </ScrollView>
-    </View>
+      {isLoading ? (
+        <ActivityIndicator style={styles.loading} />
+      ) : (
+        <ScrollView
+          contentContainerStyle={styles.scroll}
+          showsVerticalScrollIndicator={false}
+        >
+          <Text style={styles.title}>{recipient.strMeal}</Text>
+          <Image
+            source={{ uri: recipient.strMealThumb }}
+            style={{ width: '100%', height: 200, borderRadius: 10 }}
+          />
+          <Text style={{ marginTop: 20, fontSize: 18, fontWeight: 'bold' }}>
+            Instruções:
+          </Text>
+          <Text style={{ fontSize: 16, marginTop: 10 }}>
+            {recipient.strInstructions}
+          </Text>
+          {recipient.strYoutube && (
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => Linking.openURL(recipient.strYoutube)}
+            >
+              <Text style={styles.buttonTitle}>Assistir no YouTube</Text>
+            </TouchableOpacity>
+          )}
+        </ScrollView>
+      )}
+    </SafeAreaView>
   );
 }
 
@@ -84,7 +93,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#e2e2e2e2',
     alignItems: 'center',
   },
+  loading: {
+    marginTop: 50,
+  },
   backButton: {
+    paddingTop: 20,
     padding: 5,
     alignSelf: 'flex-start',
   },
@@ -93,9 +106,7 @@ const styles = StyleSheet.create({
     padding: 10,
     gap: 10,
   },
-  loading: {
-    marginTop: 30,
-  },
+
   heading: {
     fontSize: 24,
     fontWeight: 'bold',
