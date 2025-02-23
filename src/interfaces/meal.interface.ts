@@ -4,7 +4,7 @@ export interface iMeal {
   strMealThumb: string;
 }
 
-export interface iRecipiet {
+export interface iRecipe {
   idMeal: string;
   strMeal: string;
   strDrinkAlternate: string | null;

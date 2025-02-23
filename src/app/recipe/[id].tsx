@@ -1,4 +1,5 @@
-import { iRecipiet } from '@/interfaces/meal.interface';
+import { iRecipe } from '@/interfaces/meal.interface';
+import api from '@/service';
 import axios, { AxiosResponse } from 'axios';
 import { Link, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -18,7 +19,7 @@ import {
 } from 'react-native';
 
 export default function Meal() {
-  const [recipient, setRecipient] = useState({} as iRecipiet);
+  const [recipe, setRecipe] = useState({} as iRecipe);
   const [isLoading, setIsLoading] = useState(true);
 
   const { id } = useLocalSearchParams();
@@ -29,12 +30,12 @@ export default function Meal() {
 
   const getRecipient = async () => {
     try {
-      console.log('buscando');
-      const { data } = (await axios.get(
-        `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`,
-      )) as AxiosResponse<{ meals: iRecipiet[] }>;
+     
+      const { data } = (await api.get(
+        `/lookup.php?i=${id}`,
+      )) as AxiosResponse<{ meals: iRecipe[] }>;
       console.log('data', data);
-      if (data) setRecipient(data?.meals[0]);
+      if (data) setRecipe(data?.meals[0]);
     } catch (error: any) {
       console.log(error);
     } finally {
@@ -51,7 +52,7 @@ export default function Meal() {
         backgroundColor={'transparent'}
       />
       <Link href={'/'} style={styles.backButton}>
-        <Text>Voltar</Text>
+        <Text>Go back</Text>
       </Link>
 
       {isLoading ? (
@@ -61,21 +62,21 @@ export default function Meal() {
           contentContainerStyle={styles.scroll}
           showsVerticalScrollIndicator={false}
         >
-          <Text style={styles.title}>{recipient.strMeal}</Text>
+          <Text style={styles.title}>{recipe.strMeal}</Text>
           <Image
-            source={{ uri: recipient.strMealThumb }}
+            source={{ uri: recipe.strMealThumb }}
             style={{ width: '100%', height: 200, borderRadius: 10 }}
           />
           <Text style={{ marginTop: 20, fontSize: 18, fontWeight: 'bold' }}>
             Instruções:
           </Text>
           <Text style={{ fontSize: 16, marginTop: 10 }}>
-            {recipient.strInstructions}
+            {recipe.strInstructions}
           </Text>
-          {recipient.strYoutube && (
+          {recipe.strYoutube && (
             <TouchableOpacity
               style={styles.button}
-              onPress={() => Linking.openURL(recipient.strYoutube)}
+              onPress={() => Linking.openURL(recipe.strYoutube)}
             >
               <Text style={styles.buttonTitle}>Assistir no YouTube</Text>
             </TouchableOpacity>
