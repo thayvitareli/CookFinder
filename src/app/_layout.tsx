@@ -7,18 +7,17 @@ import {
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import 'react-native-reanimated';
+import { focusManager, onlineManager, QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useReactQueryDevTools } from '@dev-plugins/react-query';
+import Home from './(tabs)/home'; 
+import NetInfo from '@react-native-community/netinfo';
 
 import { useColorScheme } from '@/components/useColorScheme';
+import { AppState, AppStateStatus } from 'react-native';
 
 export { ErrorBoundary } from 'expo-router';
-
-// export const unstable_settings = {
-//   // Ensure that reloading on `/modal` keeps a back button present.
-//   initialRouteName: '/home',
-// };
-
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -26,6 +25,29 @@ export default function RootLayout() {
     SpaceMono: require('@/assets/fonts/SpaceMono-Regular.ttf'),
     ...FontAwesome.font,
   });
+
+    const colorScheme = useColorScheme();
+  const [queryClient] = useState(() => new QueryClient());
+
+
+  useEffect(() => {
+    onlineManager.setEventListener((setOnline) => {
+      return NetInfo.addEventListener((state) => {
+        setOnline(!!state.isConnected);
+      });
+    });
+  }, [NetInfo, onlineManager]);
+
+  useEffect(() => {
+    const subscriber = AppState.addEventListener('change', onFocusRefetch);
+
+    return () => subscriber.remove();
+  }, []);
+
+  const onFocusRefetch = (status: AppStateStatus) => {
+    focusManager.setFocused(status == 'active');
+  };
+
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
@@ -42,17 +64,16 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
+  return <QueryClientProvider client={queryClient}>
+     
+  <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <Stack screenOptions={{ headerShown: false }} initialRouteName='(tabs)'>
+    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+     
+      {/* <Stack.Screen name="index" /> */}
+    </Stack>
+  </ThemeProvider>
+  </QueryClientProvider>
+
 }
 
-function RootLayoutNav() {
-  const colorScheme = useColorScheme();
-
-  return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" />
-      </Stack>
-    </ThemeProvider>
-  );
-}

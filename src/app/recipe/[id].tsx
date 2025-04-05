@@ -51,7 +51,7 @@ export default function Meal() {
         barStyle={'light-content'}
         backgroundColor={'transparent'}
       />
-      <Link href={'/'} style={styles.backButton}>
+      <Link href={'/(tabs)/home'} style={styles.backButton}>
         <Text>Go back</Text>
       </Link>
 
