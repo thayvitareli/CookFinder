@@ -13,3 +13,10 @@ Um aplicativo para listar receitas utilizando a API TheMealDB.
 - React Native (com Expo)
 
 - Axios (para chamadas de API)
+
+
+
+
+
+https://github.com/user-attachments/assets/c2313b63-1935-4fce-945a-a632aa270812
+
