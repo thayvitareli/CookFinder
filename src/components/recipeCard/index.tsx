@@ -4,7 +4,7 @@ import { router } from "expo-router";
 
 export default function RecipeCard({item}:{item:any}){
   const handlePress = (id: string) => {
-    router.push('/(tabs)/favorites');
+    router.push(`/recipe/${id}`);
   };
   
     return  <TouchableOpacity

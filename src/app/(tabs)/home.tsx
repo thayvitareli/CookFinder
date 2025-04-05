@@ -62,10 +62,6 @@ export default function Home() {
 
 
 
-  const handlePress = (id: string) => {
-    router.push('/(tabs)/favorites');
-  };
-
   const RenderItem = ({ item }: ListRenderItemInfo<iMeal>) => {
     return <RecipeCard item={item}/>
   };
