@@ -1,7 +1,16 @@
 export interface iMeal {
-  idMeal: string;
-  strMeal: string;
-  strMealThumb: string;
+  id: string;
+  name:string;
+  ingredients: 
+    {
+      quantity:  string;
+      ingredient: string;    }[],
+  instructions: string,
+  image_uri: string,
+  video_uri: string,
+  category_id: string;
+  createdAt:Date,
+ 
 }
 
 export interface iRecipe {

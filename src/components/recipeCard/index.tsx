@@ -1,18 +1,19 @@
 import { TouchableOpacity, StyleSheet,Text } from "react-native";
 import {Image} from 'expo-image'
 import { router } from "expo-router";
+import { iMeal } from "@/interfaces/meal.interface";
 
-export default function RecipeCard({item}:{item:any}){
+export default function RecipeCard({item}:{item:iMeal}){
   const handlePress = (id: string) => {
     router.push(`/recipe/${id}`);
   };
   
     return  <TouchableOpacity
             style={styles.card}
-            onPress={() => handlePress(item.idMeal)}
+            onPress={() => handlePress(item.id)}
           >
-            <Image source={item.strMealThumb} style={styles.cardImage} />
-            <Text style={styles.cardText}>{item.strMeal}</Text>
+            <Image source={item.image_uri} style={styles.cardImage} />
+            <Text style={styles.cardText}>{item.name}</Text>
           </TouchableOpacity>
 }
 

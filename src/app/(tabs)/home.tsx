@@ -1,6 +1,6 @@
 import { iMeal } from '@/interfaces/meal.interface';
 import { router } from 'expo-router';
-import {  useState } from 'react';
+import {  useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -13,52 +13,74 @@ import {
   TextInput,
   StatusBar,
 } from 'react-native';
-import {
-    useQuery,
-  } from '@tanstack/react-query';
+
 import api from '@/service';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import RecipeCard from '@/components/recipeCard';
+import { RecipeHooks } from '@/hooks';
+import { useRecipes } from '@/hooks/recipe';
 
 
 export default function Home() {
   const [search, setSearch] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const getAllCategories = async () => {
-    const { data: response } = await api.get(`/list.php?c=list`);
-    return response.meals.map(
-      (meal: { strCategory: string }) => meal.strCategory,
-    );
-  };
 
-  const getAllMeals = async () => {
-    try {
-      const categories = await getAllCategories();
+  const [skip, setSkip] = useState(0)
+  const [take] = useState(3)
 
-      const requests = categories.map((category: string) =>
-        api.get(`/filter.php?c=${category}`),
+  const [isLoading, setIsLoading] = useState(false)
+  const [shouldTakeMore, setShouldTakeMore] = useState(true)
+
+  const [recipes, setRecipes] = useState([])
+
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      setSearch(searchTerm);
+    }, 500);
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm]);
+
+  useEffect(()=>{
+    getRecipes(true)
+  },[search])
+
+
+  
+  const getRecipes = async (reset = false) => {
+    if (isLoading || (!shouldTakeMore && !reset)) return;
+
+    setIsLoading(true);
+
+    const result = await RecipeHooks.findMany({
+      skip : reset?0:skip,
+      take,
+      search: search,
+    });
+
+    if (result) {
+      if(reset)
+      {
+        setRecipes(result.records),
+        setSkip(3)
+      }else{
+
+        setRecipes((prev) =>
+          skip == 0 ? result.records : [...prev, ...result.records],
       );
 
-      const responses = await Promise.all(requests);
-      let allMeals: iMeal[] = responses.flatMap(
-        (response) => response.data.meals,
-      );
+      setSkip((prev) =>  prev + take);
 
-      return allMeals
-    } catch (error:any) {
-        console.error(error?.response)
-        return null;
-    } 
+    
+      if(result.records.length < take) setShouldTakeMore(false)
+      }
+     
+    }
+   
+
+    setIsLoading(false);
   };
-
-  const { data: meals, isLoading } = useQuery({
-    queryKey: ['meals'],
-    queryFn: getAllMeals,
-    staleTime: 600000,
-    refetchInterval: 600000,
-    refetchOnWindowFocus: false, 
-    refetchOnReconnect: true,   
-  });
 
 
 
@@ -82,14 +104,18 @@ export default function Home() {
           <TextInput
             placeholder="search..."
             placeholderTextColor={'#b8b8b8'}
-            onChangeText={(value) => setSearch(value)}
-            value={search}
+            onChangeText={(value) => setSearchTerm(value)}
+            value={searchTerm}
             style={styles.searchInput}
           />
 
           <FlatList
-            data={meals?.filter((meal) => meal.strMeal.includes(search.trim()))}
-            keyExtractor={(item: iMeal) => item.idMeal}
+          onEndReached={() => {
+            getRecipes()
+          }}
+          onEndReachedThreshold={0.3}
+            data={recipes || []}
+            keyExtractor={(item: iMeal) => item.id}
             renderItem={RenderItem}
             style={styles.flatlist}
             showsVerticalScrollIndicator={false}

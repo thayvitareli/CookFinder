@@ -16,6 +16,7 @@ import NetInfo from '@react-native-community/netinfo';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { AppState, AppStateStatus } from 'react-native';
+import { AuthProvider } from '@/context/auth.context';
 
 export { ErrorBoundary } from 'expo-router';
 SplashScreen.preventAutoHideAsync();
@@ -65,7 +66,8 @@ export default function RootLayout() {
   }
 
   return <QueryClientProvider client={queryClient}>
-     
+     <AuthProvider>
+
   <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
     <Stack screenOptions={{ headerShown: false }} initialRouteName='(tabs)'>
     <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -73,6 +75,7 @@ export default function RootLayout() {
       <Stack.Screen name="recope" />
     </Stack>
   </ThemeProvider>
+     </AuthProvider>
   </QueryClientProvider>
 
 }
