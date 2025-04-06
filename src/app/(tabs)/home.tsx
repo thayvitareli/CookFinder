@@ -1,6 +1,6 @@
 import { iMeal } from '@/interfaces/meal.interface';
 import { router } from 'expo-router';
-import {  useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -20,20 +20,17 @@ import RecipeCard from '@/components/recipeCard';
 import { RecipeHooks } from '@/hooks';
 import { useRecipes } from '@/hooks/recipe';
 
-
 export default function Home() {
   const [search, setSearch] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
 
+  const [skip, setSkip] = useState(0);
+  const [take] = useState(3);
 
-  const [skip, setSkip] = useState(0)
-  const [take] = useState(3)
+  const [isLoading, setIsLoading] = useState(false);
+  const [shouldTakeMore, setShouldTakeMore] = useState(true);
 
-  const [isLoading, setIsLoading] = useState(false)
-  const [shouldTakeMore, setShouldTakeMore] = useState(true)
-
-  const [recipes, setRecipes] = useState([])
-
+  const [recipes, setRecipes] = useState([]);
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -42,50 +39,40 @@ export default function Home() {
     return () => clearTimeout(delayDebounceFn);
   }, [searchTerm]);
 
-  useEffect(()=>{
-    getRecipes(true)
-  },[search])
+  useEffect(() => {
+    getRecipes(true);
+  }, [search]);
 
-
-  
   const getRecipes = async (reset = false) => {
     if (isLoading || (!shouldTakeMore && !reset)) return;
 
     setIsLoading(true);
 
     const result = await RecipeHooks.findMany({
-      skip : reset?0:skip,
+      skip: reset ? 0 : skip,
       take,
       search: search,
     });
 
     if (result) {
-      if(reset)
-      {
-        setRecipes(result.records),
-        setSkip(3)
-      }else{
-
+      if (reset) {
+        setRecipes(result.records), setSkip(3);
+      } else {
         setRecipes((prev) =>
           skip == 0 ? result.records : [...prev, ...result.records],
-      );
+        );
 
-      setSkip((prev) =>  prev + take);
+        setSkip((prev) => prev + take);
 
-    
-      if(result.records.length < take) setShouldTakeMore(false)
+        if (result.records.length < take) setShouldTakeMore(false);
       }
-     
     }
-   
 
     setIsLoading(false);
   };
 
-
-
   const RenderItem = ({ item }: ListRenderItemInfo<iMeal>) => {
-    return <RecipeCard item={item}/>
+    return <RecipeCard item={item} />;
   };
 
   return (
@@ -110,19 +97,17 @@ export default function Home() {
           />
 
           <FlatList
-          onEndReached={() => {
-            getRecipes()
-          }}
-          onEndReachedThreshold={0.3}
+            onEndReached={() => {
+              getRecipes();
+            }}
+            onEndReachedThreshold={0.3}
             data={recipes || []}
             keyExtractor={(item: iMeal) => item.id}
             renderItem={RenderItem}
             style={styles.flatlist}
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={
-              <Text style={styles.textEmptyList}>
-                No recipes found
-              </Text>
+              <Text style={styles.textEmptyList}>No recipes found</Text>
             }
           />
         </>
@@ -136,7 +121,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 24,
     backgroundColor: '#e2e2e2e2',
-  
+
     alignItems: 'center',
   },
   loading: {
@@ -161,23 +146,23 @@ const styles = StyleSheet.create({
   },
 
   card: {
-    flexDirection:'row',
+    flexDirection: 'row',
     width: '100%',
-    padding:5,
-   gap:10,
+    padding: 5,
+    gap: 10,
     marginBottom: 15,
     backgroundColor: '#ececec',
     borderRadius: 20,
   },
   cardText: {
-    maxWidth:'45%',
+    maxWidth: '45%',
     textAlign: 'center',
     fontWeight: 'bold',
   },
   cardImage: {
     width: '50%',
     height: 150,
-   borderRadius:20,
+    borderRadius: 20,
     objectFit: 'cover',
   },
   textEmptyList: {

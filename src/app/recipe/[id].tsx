@@ -30,10 +30,9 @@ export default function Meal() {
 
   const getRecipient = async () => {
     try {
-     
-      const { data } = (await api.get(
-        `/lookup.php?i=${id}`,
-      )) as AxiosResponse<{ meals: iRecipe[] }>;
+      const { data } = (await api.get(`/lookup.php?i=${id}`)) as AxiosResponse<{
+        meals: iRecipe[];
+      }>;
       console.log('data', data);
       if (data) setRecipe(data?.meals[0]);
     } catch (error: any) {

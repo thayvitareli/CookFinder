@@ -1,40 +1,61 @@
-import api from "@/service"
-import FindMany from "@/shared/find-many.interface";
-import { AxiosResponse } from "axios";
-import {
-    useQuery,
-  } from '@tanstack/react-query';
+import api from '@/service';
+import FindMany from '@/shared/find-many.interface';
+import { AxiosResponse } from 'axios';
+import { useQuery } from '@tanstack/react-query';
 
-const findMany = async ({skip, take, search}:FindMany) => {
-    try{
-        const {data} = await api.get('/recipes', {
-            params: {
-                skip,
-                take,
-                search,
-            }
-        }) as AxiosResponse<{total:number, records: []}>
+const findMany = async ({ skip, take, search }: FindMany) => {
+  try {
+    const { data } = (await api.get('/recipes', {
+      params: {
+        skip,
+        take,
+        search,
+      },
+    })) as AxiosResponse<{ total: number; records: [] }>;
 
-        return data;
+    return data;
+  } catch (error: any) {
+    console.log(error?.response?.data);
+    return false;
+  }
+};
 
-    }catch(error:any){
-       console.log(error?.response?.data)
-       return false;
-    }
-}
+const listMyFavoriteRecipes = async ({ skip, take }: FindMany) => {
+  try {
+    const { data } = (await api.get('/recipes/my-favorites', {
+      params: {
+        skip,
+        take,
+      },
+    })) as AxiosResponse<{ total: number; records: [] }>;
 
- const useRecipes = ({skip, take,search}: FindMany) => {
-    return useQuery({
-        queryKey: ['meals',skip,take, search],
-        queryFn: () => findMany({skip, take, search}),
-        staleTime: 600000,
-        refetchInterval: 600000,
-        refetchOnWindowFocus: false, 
-        refetchOnReconnect: true,   
-      });
- }
+    return data;
+  } catch (error: any) {
+    console.log(error?.response?.data);
+    return false;
+  }
+};
 
+const likeOrDeslike = async (recipeId: String) => {
+  try {
+    const { data } = await api.post(`/recipes/${recipeId}/favorite`);
 
-export  {findMany,useRecipes}
+    return data;
+  } catch (error: any) {
+    console.log(error?.response?.data);
+    return false;
+  }
+};
 
+const useRecipes = ({ skip, take, search }: FindMany) => {
+  return useQuery({
+    queryKey: ['meals', skip, take, search],
+    queryFn: () => findMany({ skip, take, search }),
+    staleTime: 600000,
+    refetchInterval: 600000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+  });
+};
 
+export { findMany, useRecipes, listMyFavoriteRecipes, likeOrDeslike };

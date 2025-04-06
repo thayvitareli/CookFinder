@@ -9,9 +9,14 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import React, { useEffect, useState } from 'react';
 import 'react-native-reanimated';
-import { focusManager, onlineManager, QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import {
+  focusManager,
+  onlineManager,
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query';
 import { useReactQueryDevTools } from '@dev-plugins/react-query';
-import Home from './(tabs)/home'; 
+import Home from './(tabs)/home';
 import NetInfo from '@react-native-community/netinfo';
 
 import { useColorScheme } from '@/components/useColorScheme';
@@ -27,9 +32,8 @@ export default function RootLayout() {
     ...FontAwesome.font,
   });
 
-    const colorScheme = useColorScheme();
+  const colorScheme = useColorScheme();
   const [queryClient] = useState(() => new QueryClient());
-
 
   useEffect(() => {
     onlineManager.setEventListener((setOnline) => {
@@ -49,7 +53,6 @@ export default function RootLayout() {
     focusManager.setFocused(status == 'active');
   };
 
-
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
@@ -65,18 +68,22 @@ export default function RootLayout() {
     return null;
   }
 
-  return <QueryClientProvider client={queryClient}>
-     <AuthProvider>
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <ThemeProvider
+          value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
+        >
+          <Stack
+            screenOptions={{ headerShown: false }}
+            initialRouteName="(tabs)"
+          >
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
 
-  <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-    <Stack screenOptions={{ headerShown: false }} initialRouteName='(tabs)'>
-    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-     
-      <Stack.Screen name="recope" />
-    </Stack>
-  </ThemeProvider>
-     </AuthProvider>
-  </QueryClientProvider>
-
+            <Stack.Screen name="recope" />
+          </Stack>
+        </ThemeProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  );
 }
-

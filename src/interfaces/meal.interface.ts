@@ -1,16 +1,15 @@
 export interface iMeal {
   id: string;
-  name:string;
-  ingredients: 
-    {
-      quantity:  string;
-      ingredient: string;    }[],
-  instructions: string,
-  image_uri: string,
-  video_uri: string,
+  name: string;
+  ingredients: {
+    quantity: string;
+    ingredient: string;
+  }[];
+  instructions: string;
+  image_uri: string;
+  video_uri: string;
   category_id: string;
-  createdAt:Date,
- 
+  createdAt: Date;
 }
 
 export interface iRecipe {

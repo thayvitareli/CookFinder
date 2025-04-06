@@ -1,5 +1,3 @@
-import * as RecipeHooks from './recipe'
+import * as RecipeHooks from './recipe';
 
-export  {RecipeHooks}
-
-
+export { RecipeHooks };

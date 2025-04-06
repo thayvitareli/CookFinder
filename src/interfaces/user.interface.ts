@@ -1,6 +1,6 @@
-interface user{
-    name:string;
-    token:string;
+interface user {
+  name: string;
+  token: string;
 }
 
-export {user}
+export { user };

@@ -1,1 +1,1 @@
-export * as iUser from './user.interface'
+export * as iUser from './user.interface';

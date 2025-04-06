@@ -1,40 +1,66 @@
 import { iMeal } from '@/interfaces/meal.interface';
 import { router } from 'expo-router';
-import {  useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
-  View,
   Text,
   StyleSheet,
   ListRenderItemInfo,
-  Image,
   FlatList,
-  TouchableOpacity,
   ActivityIndicator,
   StatusBar,
 } from 'react-native';
-import {
-    useQuery,
-  } from '@tanstack/react-query';
+
 import api from '@/service';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
+import RecipeCard from '@/components/recipeCard';
+import { RecipeHooks } from '@/hooks';
+import { useRecipes } from '@/hooks/recipe';
+import { useIsFocused } from '@react-navigation/native';
 
 export default function Favorites() {
+  const [skip, setSkip] = useState(0);
+  const [take] = useState(3);
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [shouldTakeMore, setShouldTakeMore] = useState(true);
 
- 
+  const [recipes, setRecipes] = useState([]);
 
-  const data: ArrayLike<iMeal> | null | undefined = []
+  const isFocused = useIsFocused();
 
+  useEffect(() => {
+    if (isFocused) getRecipes(true);
+  }, [isFocused]);
+
+  const getRecipes = async (reset = false) => {
+    if (isLoading || (!shouldTakeMore && !reset)) return;
+
+    setIsLoading(true);
+
+    const result = await RecipeHooks.listMyFavoriteRecipes({
+      skip: reset ? 0 : skip,
+      take,
+    });
+
+    if (result) {
+      if (reset) {
+        setRecipes(result.records), setSkip(3);
+      } else {
+        setRecipes((prev) =>
+          skip == 0 ? result.records : [...prev, ...result.records],
+        );
+
+        setSkip((prev) => prev + take);
+
+        if (result.records.length < take) setShouldTakeMore(false);
+      }
+    }
+
+    setIsLoading(false);
+  };
 
   const RenderItem = ({ item }: ListRenderItemInfo<iMeal>) => {
-    return (
-      <TouchableOpacity
-        style={styles.card}
-      >
-       
-      </TouchableOpacity>
-    );
+    return <RecipeCard item={item} />;
   };
 
   return (
@@ -46,22 +72,26 @@ export default function Favorites() {
       />
       <Text style={styles.heading}>Favoritos</Text>
 
-      
-        
+      {isLoading ? (
+        <ActivityIndicator style={styles.loading} />
+      ) : (
+        <>
           <FlatList
-            data={data}
-            keyExtractor={(item: iMeal) => item.idMeal}
+            onEndReached={() => {
+              getRecipes();
+            }}
+            onEndReachedThreshold={0.3}
+            data={recipes || []}
+            keyExtractor={(item: iMeal) => item.id}
             renderItem={RenderItem}
             style={styles.flatlist}
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={
-              <Text style={styles.textEmptyList}>
-                Você ainda não tem favoritos
-              </Text>
+              <Text style={styles.textEmptyList}>No recipes found</Text>
             }
           />
-        
-      
+        </>
+      )}
     </SafeAreaView>
   );
 }
@@ -71,6 +101,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 24,
     backgroundColor: '#e2e2e2e2',
+
     alignItems: 'center',
   },
   loading: {
@@ -95,22 +126,23 @@ const styles = StyleSheet.create({
   },
 
   card: {
+    flexDirection: 'row',
     width: '100%',
-    height: 250,
+    padding: 5,
+    gap: 10,
     marginBottom: 15,
     backgroundColor: '#ececec',
     borderRadius: 20,
   },
   cardText: {
-    paddingTop: 10,
+    maxWidth: '45%',
     textAlign: 'center',
     fontWeight: 'bold',
   },
   cardImage: {
-    width: '100%',
-    height: 200,
-    borderTopRightRadius: 20,
-    borderTopLeftRadius: 20,
+    width: '50%',
+    height: 150,
+    borderRadius: 20,
     objectFit: 'cover',
   },
   textEmptyList: {
